@@ -1,0 +1,42 @@
+# ---- Secrets (never commit) ----
+secrets/
+*.secret
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+appsettings.Production.json
+appsettings.Local.json
+# Holds a real Supabase connection string; the canonical copy lives in dotnet user-secrets
+appsettings.Development.json
+
+# ---- .NET ----
+bin/
+obj/
+*.user
+*.suo
+.vs/
+artifacts/
+
+# ---- Node / Next.js ----
+node_modules/
+.next/
+out/
+build/
+dist/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---- Python (document-processor, when it exists) ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---- Editors / OS ----
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

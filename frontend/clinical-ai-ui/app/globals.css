@@ -1,0 +1,183 @@
+:root {
+  --bg: #F6F8F9;
+  --surface: #FFFFFF;
+  --ink: #182430;
+  --ink-secondary: #5B6B78;
+  --accent: #0F6E6A;
+  --accent-hover: #0C5A57;
+  --border: #DDE4E8;
+  --danger: #8A4A3A;
+  --success: #2E7D5B;
+  --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* Sign-in is a single short form; the record column width is too wide for it. */
+.page-narrow { max-width: 380px; padding-top: 72px; }
+
+.empty-note {
+  font-size: 13.5px;
+  color: var(--ink-secondary);
+  padding: 14px 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.topbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+
+.back-link {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+.back-link:hover { color: var(--accent); }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* --- Forms --- */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  margin-bottom: 6px;
+}
+.field input, .field select {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.field input:focus, .field select:focus,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.btn {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.btn:hover { border-color: var(--ink-secondary); }
+.btn:disabled { color: var(--ink-secondary); cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn-primary:disabled { background: var(--ink-secondary); border-color: var(--ink-secondary); }
+
+.error-text {
+  font-size: 13px;
+  color: var(--danger);
+  margin: 8px 0;
+}
+
+/* --- Lists (patients, documents) --- */
+.record-list { list-style: none; margin: 0; padding: 0; }
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.record-row:first-child { border-top: 1px solid var(--border); }
+.record-name { font-size: 15px; font-weight: 500; }
+.record-meta {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink-secondary);
+}
+
+.status-pill {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  color: var(--ink-secondary);
+}
+.status-pill[data-status="Completed"] { color: var(--success); border-color: var(--success); }
+.status-pill[data-status="Failed"] { color: var(--danger); border-color: var(--danger); }
+
+/* --- Summary output --- */
+.summary-box {
+  white-space: pre-wrap;
+  font-size: 14.5px;
+  line-height: 1.65;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 20px;
+  border-radius: 4px;
+  margin-top: 16px;
+}
+
+/* --- Upload row --- */
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
