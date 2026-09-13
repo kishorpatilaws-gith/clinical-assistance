@@ -230,4 +230,83 @@ Planned/partially complete:
 
 ---
 
+---
+
+## Maintenance pass — 2026-09-13
+
+A correctness/security pass over the state of the tree at the end of Part 3. Notes above this
+line are the original build log and were partly stale; this section records the actual state.
+
+### Startup was broken
+`DbSet<Document>` had been added to `ClinicalDbContext` without a matching migration. EF Core 10
+raises `PendingModelChangesWarning` **as an error** inside `Database.Migrate()`, so `Program.cs`
+threw before Kestrel ever bound a port:
+
+```
+System.InvalidOperationException: An error was generated for warning
+'Microsoft.EntityFrameworkCore.Migrations.PendingModelChangesWarning'
+```
+
+This — not the missing `DocumentController` — was the real cause of the frontend failures. The
+whole API was down, so *every* endpoint failed, not just `/api/document`.
+
+Fixed with `dotnet ef migrations add AddDocuments`. The migration applied cleanly on next run and
+created the `Documents` table. Useful check for next time, no DB connection needed:
+
+```
+dotnet ef migrations has-pending-model-changes
+```
+
+Note it builds first by default — with `--no-build` it reads a stale assembly and reports a false
+positive right after adding a migration.
+
+### Security fixes
+- **`BedrockController` had no `[Authorize]`.** `POST /api/bedrock/invoke` was an open,
+  unauthenticated proxy to Bedrock — any caller could spend account quota on arbitrary prompts,
+  with no redaction and no audit trail. Now `[Authorize(Roles = "doctor")]` like
+  `PatientController`, and it writes an `InvokeBedrock` audit row. Verified: `401` unauthenticated
+  (was `200`).
+- **Secrets moved out of the tree.** The Supabase connection string (with password) was in
+  `appsettings.Development.json`; R2 keys and a live Cloudflare API token were in
+  `secrets/r2 1.secret`. All now in `dotnet user-secrets` alongside the JWT secret that was
+  already there. Added a root `.gitignore` (there was none outside `frontend/`) covering
+  `secrets/`, `*.secret`, `bin/`, `obj/`, `node_modules/`, `.env*`.
+- **Still to do: rotate.** These credentials existed in plaintext on disk; `.gitignore` prevents
+  future exposure but does not undo past exposure.
+
+### Correctness fixes
+- `PatientSummaryService` sent `Allergies` to the model **unredacted** while every other free-text
+  field went through `RedactFreeText`. Now all four go through a `Field()` helper that also
+  restores the "None recorded" fallback for empty values (previously they rendered as a blank line).
+- Age was `UtcNow.Year - DateOfBirth.Year` — a year subtraction, wrong by one before a birthday.
+  Now a real age calculation.
+- `apiFetch` sent the literal header `Authorization: Bearer null` when no token was present; the
+  header is now omitted entirely so the API sees a missing token rather than a malformed one.
+
+### The design system was never loaded
+`app/globals.css` (the full palette, `.record-row`, `.status-pill`, `.summary-box`, …) was never
+imported — `layout.tsx` had no `import './globals.css'`, and **no component used `className` at
+all**; all four pages used inline `style={{…}}`. The app had been rendering as unstyled browser
+defaults the whole time. Added the import and converted all four pages onto the existing classes.
+Added `.page-narrow` (sign-in) and `.empty-note` (empty states) to cover cases the original CSS
+didn't have.
+
+### Layout correction
+`BedrockService.cs` and `R2StorageService.cs` moved from `Services/` into `Application/Services/`;
+the `Services/` folder is gone and the namespace outlier noted in Part 1 is resolved.
+
+### Still open
+- **The R2 bucket does not match Part 4's description.** Part 4 describes `clinical-documents` for
+  PDFs/Word docs. The only credentials in the repo point at **`live-assist-audio`**, which holds 8
+  MP3 session recordings keyed by real-looking personal email addresses
+  (`{email}/{date}/session-{HH-MM-SS}/session.mp3`, 79.5 MB). That sits badly against the
+  synthetic-data-only boundary. `R2StorageService` is still an empty stub and the `IAmazonS3`
+  registration in `Program.cs` is still commented out, pending this decision.
+- `DocumentController` still does not exist; `/api/document` returns `404`. The Documents page now
+  detects the 404 and says so rather than silently showing an empty list.
+- The `document-processor/` Python microservice does not exist on disk.
+- `WeatherForecastController.cs` / `WeatherForecast.cs` scaffold leftovers are still present.
+
+---
+
 ## Next up: finish Part 4, then Part 5 (Custom RAG with chunking, embeddings, and Qdrant Cloud).

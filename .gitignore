@@ -35,6 +35,21 @@ __pycache__/
 .venv/
 venv/
 
+# ---- Terraform ----
+# .terraform.lock.hcl is deliberately NOT ignored — committing it pins the exact
+# provider versions and hashes, which is the whole point of the lock file.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
 # ---- Editors / OS ----
 .idea/
 *.swp

@@ -1,0 +1,15 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored.
+#
+# The Cloudflare API token is NOT set here. Export it instead, so it never lands
+# in a file, the state, or plan output:
+#
+#   PowerShell:  $env:CLOUDFLARE_API_TOKEN = "<token>"
+#   bash:        export CLOUDFLARE_API_TOKEN="<token>"
+
+cloudflare_account_id = "0000000000000000000000000000000a"
+
+# Optional — these already have sensible defaults in variables.tf:
+# aws_region     = "us-east-1"
+# r2_bucket_name = "clinical-documents"
+# r2_location    = "APAC"
+# environment    = "dev"
