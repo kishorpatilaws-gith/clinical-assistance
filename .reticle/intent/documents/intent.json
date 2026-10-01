@@ -1,0 +1,24 @@
+{
+  "intents": {
+    "document-upload-background": {
+      "declaredAt": 1790841677456,
+      "id": "document-upload-background",
+      "state": "declared",
+      "statement": "Uploading a document returns at once (HTTP 202) with the document listed as Pending; extraction and indexing run in the background, and the documents list refreshes by itself until the row reads Completed or Failed, with no reload and no request held open for the length of the indexing.",
+      "status": "proposed",
+      "subject": "documents",
+      "surface": {
+        "files": [
+          "frontend/clinical-ai-ui/app/documents/page.tsx",
+          "backend/ClinicalAI.Api/ClinicalAI.Api/Controllers/DocumentController.cs",
+          "backend/ClinicalAI.Api/ClinicalAI.Api/Application/Services/DocumentIndexingWorker.cs",
+          "backend/ClinicalAI.Api/ClinicalAI.Api/Application/Services/DocumentIndexer.cs"
+        ],
+        "route": "/documents"
+      },
+      "updatedAt": 1790841677513
+    }
+  },
+  "subject": "documents",
+  "version": 1
+}

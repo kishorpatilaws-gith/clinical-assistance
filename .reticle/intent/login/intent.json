@@ -1,0 +1,22 @@
+{
+  "intents": {
+    "clinician-sign-in": {
+      "declaredAt": 1790841677456,
+      "id": "clinician-sign-in",
+      "state": "declared",
+      "statement": "A clinician with a doctor account signs in with email and password and lands on the patient list, loaded from the API.",
+      "status": "proposed",
+      "subject": "login",
+      "surface": {
+        "files": [
+          "frontend/clinical-ai-ui/app/login/page.tsx",
+          "frontend/clinical-ai-ui/lib/auth.ts"
+        ],
+        "route": "/login"
+      },
+      "updatedAt": 1790841677493
+    }
+  },
+  "subject": "login",
+  "version": 1
+}

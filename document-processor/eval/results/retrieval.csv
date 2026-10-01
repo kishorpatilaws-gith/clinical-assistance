@@ -1,0 +1,16 @@
+id,question,expected,rank,reciprocal_rank,top_hit,top_score,latency_ms,hit@1,hit@3,hit@5,hit@10
+a01,How long should a cough go on before someone sees a doctor?,Disease and Medicine.docx#[2],3,0.3333333333333333,Disease and Medicine.docx#1,0.4701,8949.4,False,True,True,True
+a02,Is there a prescription medicine that suppresses coughing?,Disease and Medicine.docx#[1],2,0.5,Disease and Medicine.docx#0,0.6836,441.5,False,True,True,True
+a03,Which nasal sprays bring down swelling inside the nose?,Disease and Medicine.docx#[4],1,1.0,Disease and Medicine.docx#4,0.6277,412.3,True,True,True,True
+a04,What does thick green discharge from the nose suggest?,Disease and Medicine.docx#[3],2,0.5,Disease and Medicine.docx#2,0.5659,511.3,False,True,True,True
+a05,Which painkillers are suggested for head pain?,Disease and Medicine.docx#[6],1,1.0,Disease and Medicine.docx#6,0.6755,486.7,True,True,True,True
+a06,Which kind of sudden head pain needs urgent attention?,Disease and Medicine.docx#[7],4,0.25,Disease and Medicine.docx#5,0.6138,543.3,False,False,True,True
+a07,What signs mean breathing trouble has become an emergency?,Disease and Medicine.docx#[8],3,0.3333333333333333,Disease and Medicine.docx#7,0.6512,545.8,False,True,True,True
+a08,Are inhalers bought off the shelf a good idea?,Disease and Medicine.docx#[8],1,1.0,Disease and Medicine.docx#8,0.4883,514.7,True,True,True,True
+a09,Can this be handled with remedies from a pharmacy instead of a specialist?,Disease and Medicine.docx#[9],7,0.14285714285714285,Disease and Medicine.docx#10,0.4432,462.6,False,False,False,True
+a10,Why take care with decongestants when the prostate is involved?,Disease and Medicine.docx#[10],2,0.5,Disease and Medicine.docx#9,0.4933,493.2,False,True,True,True
+a11,Which exercises help regain bladder control after treatment?,Disease and Medicine.docx#[10],1,1.0,Disease and Medicine.docx#10,0.5619,453.8,True,True,True,True
+a12,Are there rub-on treatments for sore joints?,Disease and Medicine.docx#[11],1,1.0,Disease and Medicine.docx#11,0.529,424.7,True,True,True,True
+a13,How does stiffness in the morning differ between the two joint conditions?,Disease and Medicine.docx#[12],1,1.0,Disease and Medicine.docx#12,0.7198,407.1,True,True,True,True
+a14,Does paracetamol bring down swelling as well as pain?,Disease and Medicine.docx#[11],3,0.3333333333333333,Disease and Medicine.docx#6,0.431,426.0,False,True,True,True
+a15,What drinks help soothe an irritated throat?,"Disease and Medicine.docx#[1, 9]",1,1.0,Disease and Medicine.docx#1,0.7162,468.6,True,True,True,True

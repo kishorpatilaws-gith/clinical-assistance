@@ -1,0 +1,29 @@
+id,kind,question,refused,correct,markers,citations_valid,cited_source_correct,latency_ms,answer
+a01,answerable,How long should a cough go on before someone sees a doctor?,False,True,2,True,True,6112.6,"If a cough persists for more than one week, it is recommended that the individual see a doctor [1][3]. Additionally, if the cough is accompanied by severe symptoms such as high fever, chest pain, shortness of breath, or coughing up blood, or if there is a suspicion of underlying conditions like asthma, GERD, or severe respiratory infections, medical attention should be sought [3]."
+a02,answerable,Is there a prescription medicine that suppresses coughing?,False,True,1,True,False,1318.1,"Yes, there is a prescription medicine that suppresses coughing. Codeine is mentioned as a potent prescription cough suppressant, though it comes with higher risks of side effects and addiction potential [1]."
+a03,answerable,Which nasal sprays bring down swelling inside the nose?,False,True,1,True,True,1228.5,"Intranasal corticosteroids can reduce inflammation and swelling inside the nose. Examples include Fluticasone (Flonase), Budesonide (Rhinocort), and Mometasone (Nasonex) [1]."
+a04,answerable,What does thick green discharge from the nose suggest?,False,True,1,True,True,1339.4,"Thick green nasal discharge often suggests an infection, such as a sinus infection or a common cold caused by bacteria rather than a virus [2]."
+a05,answerable,Which painkillers are suggested for head pain?,False,True,3,True,True,1481.0,"- Acetaminophen (Tylenol) for general pain relief [1][2][3].
+- Ibuprofen (Advil, Motrin) for pain and inflammation [1][2][3].
+- Naproxen Sodium (Aleve) for extended relief [1]."
+a06,answerable,Which kind of sudden head pain needs urgent attention?,False,True,2,True,True,1636.7,"Sudden, extremely severe headache (""thunderclap"" headache) needs urgent attention [2][4]. Additionally, headaches paired with high fever, stiff neck, confusion, seizures, numbness, or difficulty speaking should be evaluated urgently [4]."
+a07,answerable,What signs mean breathing trouble has become an emergency?,False,True,2,True,True,1467.8,"Signs that breathing trouble has become an emergency include the inability to speak full sentences without pausing for breath, skin pulling in tightly around the neck and ribs (retractions), and lips, face, or fingernails turning blue or gray [1][3]."
+a08,answerable,Are inhalers bought off the shelf a good idea?,False,True,1,True,True,1783.2,"The provided documents do not address this question. However, it is important to note that the passages discuss the use of rescue inhalers and long-term preventive inhalers prescribed by a physician for asthma management [1]. Over-the-counter options like Primatene Mist (epinephrine) or Bronkaid (ephedrine/guaifenesin) are discouraged due to significant risks such as elevated heart rate and high b"
+a09,answerable,Can this be handled with remedies from a pharmacy instead of a specialist?,False,True,4,True,False,3176.2,"- For joint pain and inflammation, over-the-counter NSAIDs like ibuprofen or naproxen can be considered to reduce pain and inflammation [3]. Acetaminophen can be used for targeted pain management, though it does not reduce inflammation [3]. Topical options like diclofenac gel or capsaicin creams may also be effective [3].
+- For respiratory symptoms, over-the-counter options such as intranasal cort"
+a10,answerable,Why take care with decongestants when the prostate is involved?,False,True,1,True,True,1440.6,"Decongestants and antihistamines should be used with extreme caution when the prostate is involved because they can relax bladder muscles, tighten the prostate, and potentially trigger acute urinary retention [2]."
+a11,answerable,Which exercises help regain bladder control after treatment?,False,True,1,True,True,1423.0,Pelvic Floor Exercises (Kegels) are recommended to help regain urinary control after treatment [1].
+a12,answerable,Are there rub-on treatments for sore joints?,False,True,1,True,True,1400.0,"Yes, there are rub-on treatments for sore joints. According to the provided documents, topical treatments such as Diclofenac gel (Voltaren) or capsaicin creams can be applied directly over joints to help manage pain and inflammation [1]."
+a13,answerable,How does stiffness in the morning differ between the two joint conditions?,False,True,1,True,True,1468.9,"In the provided documents, morning stiffness differs between Osteoarthritis (OA) and Rheumatoid Arthritis (RA) as follows:
+- OA typically presents with morning stiffness that lasts under 30 minutes [1].
+- RA is characterized by prolonged morning stiffness lasting over 1 hour [1]. 
+
+These differences may help in distinguishing between the two conditions."
+a14,answerable,Does paracetamol bring down swelling as well as pain?,True,False,0,,False,1140.9,The provided documents do not address this question.
+a15,answerable,What drinks help soothe an irritated throat?,False,True,1,True,True,1501.3,"Herbal teas, broths, and water are recommended to soothe an irritated throat [1]."
+u01,unanswerable,What is the first-line treatment for malaria?,True,True,0,,,1237.8,The provided documents do not address this question.
+u02,unanswerable,What antibiotic dose should be given for pneumonia?,True,True,0,,,1353.1,The provided documents do not address this question.
+u03,unanswerable,How is type 2 diabetes managed long term?,True,True,0,,,1186.5,The provided documents do not address this question.
+u04,unanswerable,What are the stages of chronic kidney disease?,True,True,0,,,1169.7,The provided documents do not address this question.
+u05,unanswerable,Which vaccines are recommended before travelling abroad?,True,True,0,,,4109.4,The provided documents do not address this question.
+u06,unanswerable,What is the normal reference range for serum potassium?,True,True,0,,,4639.9,The provided documents do not address this question.

@@ -1,0 +1,22 @@
+{
+  "intents": {
+    "ask-cited-answer": {
+      "declaredAt": 1790841677456,
+      "id": "ask-cited-answer",
+      "state": "declared",
+      "statement": "Asking a question about an indexed document returns an answer drawn only from that document's passages, with numbered citations back to the passages it used.",
+      "status": "proposed",
+      "subject": "ask",
+      "surface": {
+        "files": [
+          "frontend/clinical-ai-ui/app/ask/page.tsx",
+          "backend/ClinicalAI.Api/ClinicalAI.Api/Application/Services/RagService.cs"
+        ],
+        "route": "/ask"
+      },
+      "updatedAt": 1790841677537
+    }
+  },
+  "subject": "ask",
+  "version": 1
+}

@@ -30,8 +30,9 @@ export default function PatientsPage() {
     (async () => {
       try {
         const res = await apiFetch('/api/patient');
-        if (res.status === 401 || res.status === 403) {
-          setError(res.status === 403 ? 'You do not have doctor access.' : 'Session expired.');
+        if (res.status === 401) return;          // apiFetch is redirecting to /login
+        if (res.status === 403) {
+          setError('You do not have doctor access.');
           return;
         }
         if (!res.ok) {
@@ -59,7 +60,10 @@ export default function PatientsPage() {
         </div>
       </div>
 
-      <Link className="back-link" href="/documents">Manage documents</Link>
+      <p className="topbar-meta" style={{ marginBottom: 16 }}>
+        <Link href="/ask">Ask the documents</Link>
+        <Link href="/documents">Manage documents</Link>
+      </p>
 
       {error && <p className="error-text">{error}</p>}
 

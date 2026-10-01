@@ -122,7 +122,14 @@ button:focus-visible {
   color: #fff;
 }
 .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-.btn-primary:disabled { background: var(--ink-secondary); border-color: var(--ink-secondary); }
+/* `.btn:disabled` (0,2,0) outranks `.btn-primary` (0,1,0) and would repaint the
+   label in --ink-secondary, i.e. the same value as this background, leaving an
+   empty grey block. Restate the color here so the label survives. */
+.btn-primary:disabled {
+  background: var(--ink-secondary);
+  border-color: var(--ink-secondary);
+  color: #fff;
+}
 
 .error-text {
   font-size: 13px;
@@ -157,6 +164,7 @@ button:focus-visible {
 }
 .status-pill[data-status="Completed"] { color: var(--success); border-color: var(--success); }
 .status-pill[data-status="Failed"] { color: var(--danger); border-color: var(--danger); }
+.status-pill[data-status="Processing"] { color: var(--accent); border-color: var(--accent); }
 
 /* --- Summary output --- */
 .summary-box {
@@ -181,3 +189,138 @@ button:focus-visible {
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
+/* --- Ask (RAG) --- */
+.ask-form { padding: 4px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
+
+.ask-form textarea {
+  width: 100%;
+  min-height: 74px;
+  padding: 11px 13px;
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  resize: vertical;
+}
+.ask-form textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.ask-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+/* A select is as wide as its longest option, so one long file name would push
+   the button onto its own line. Let it shrink to the space left instead. */
+.ask-controls .btn { flex-shrink: 0; }
+.ask-controls select {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 8px 10px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* Citation markers are buttons, not decoration: the passage behind a claim is one
+   click away, attached to the claim rather than in a list the eye skips. */
+.citation {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 2px 5px;
+  margin: 0 1px;
+  vertical-align: baseline;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.citation:hover { border-color: var(--accent); }
+.citation[aria-expanded="true"] {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.source-panel {
+  margin: 12px 0 4px;
+  padding: 13px 15px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  border-radius: 3px;
+}
+.source-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.source-text { font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; }
+
+.answer-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* A refusal is a correct outcome, not a failure - it must not read as an error. */
+.refusal {
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--ink-secondary);
+  border-radius: 4px;
+  font-size: 14.5px;
+}
+.refusal-hint { font-size: 13px; color: var(--ink-secondary); margin: 8px 0 0; }
+
+.disclosure { margin-top: 18px; }
+.disclosure summary {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  padding: 6px 0;
+}
+.disclosure summary:hover { color: var(--accent); }
+.disclosure[open] summary { margin-bottom: 8px; }
+
+.passage {
+  padding: 11px 0;
+  border-top: 1px solid var(--border);
+}
+.passage-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  margin-bottom: 5px;
+}
+.passage-text { font-size: 13px; line-height: 1.55; color: var(--ink-secondary); }

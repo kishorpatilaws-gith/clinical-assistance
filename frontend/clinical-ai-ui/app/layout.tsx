@@ -1,3 +1,4 @@
+import { ReticleDev } from './reticle-dev';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -11,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>{process.env.NODE_ENV === 'development' ? <ReticleDev /> : null}{children}</body>
     </html>
   );
 }

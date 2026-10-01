@@ -6,12 +6,19 @@ namespace ClinicalAI.Api.Application.Services
     public interface IBedrockService
     {
         Task<string> InvokeModelAsync(string userPrompt);
+
+        /// <summary>Reported alongside generated text so an answer can be traced to
+        /// the model that produced it - Part 6 swaps models and the outputs must be
+        /// distinguishable.</summary>
+        string ModelId { get; }
     }
 
     public class BedrockService : IBedrockService
     {
         private readonly IAmazonBedrockRuntime _client;
-        private const string ModelId = "amazon.nova-pro-v1:0";
+        private const string DefaultModelId = "amazon.nova-pro-v1:0";
+
+        public string ModelId => DefaultModelId;
 
         public BedrockService(IAmazonBedrockRuntime client)
         {
@@ -22,7 +29,7 @@ namespace ClinicalAI.Api.Application.Services
         {
             var request = new ConverseRequest
             {
-                ModelId = ModelId,
+                ModelId = DefaultModelId,
                 Messages = new List<Message>
             {
                 new Message

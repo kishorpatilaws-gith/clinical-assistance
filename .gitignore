@@ -55,3 +55,7 @@ override.tf.json
 *.swp
 .DS_Store
 Thumbs.db
+
+# ---- Logs / local tool state ----
+*.log
+.claude/settings.local.json

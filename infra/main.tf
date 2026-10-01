@@ -40,8 +40,5 @@ locals {
   }
 }
 
-# ------------------------------------------------------------------------------
-# No resources yet. Step 4.0 exists to make step 4.1 reproducible: providers are
-# pinned, variables are declared, and `terraform init` + `validate` pass against
-# an empty plan. The R2 bucket and its scoped token arrive in 4.1.
-# ------------------------------------------------------------------------------
+# Resources live in their own files by concern: r2.tf for storage. Part 6 adds
+# s3.tf, bedrock.tf and iam.tf when the Knowledge Base arrives.

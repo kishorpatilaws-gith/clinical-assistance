@@ -1,0 +1,127 @@
+{
+  "version": 2,
+  "name": "drive-ask-cited-answer",
+  "intent": "ask-cited-answer",
+  "intentId": "flow:drive-ask-cited-answer",
+  "projectId": "clinical-ai-ui-9dd6e61c",
+  "startPath": "/documents",
+  "requires": [
+    {
+      "kind": "route",
+      "pathname": "/documents"
+    }
+  ],
+  "ensures": [
+    {
+      "kind": "route",
+      "pathname": "/ask"
+    }
+  ],
+  "author": {
+    "agent": "claude-code-stdio",
+    "person": "kishor.patil.aws@gmail.com"
+  },
+  "createdAt": 1790842100678,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "link",
+        "name": "Ask the documents"
+      },
+      "action": "click",
+      "args": {},
+      "expect": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "route",
+            "pathname": "/ask"
+          },
+          {
+            "kind": "settled"
+          }
+        ]
+      },
+      "page": "/documents",
+      "endPage": "/ask"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "textbox",
+        "name": "Question"
+      },
+      "action": "fill",
+      "args": {
+        "value": "When does the travel vaccination clinic run?"
+      },
+      "page": "/ask"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "combobox",
+        "name": "Limit to one document"
+      },
+      "action": "select",
+      "args": {
+        "value": "f01fa393-cbe5-4091-814b-9c9508dd5f1b"
+      },
+      "page": "/ask"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Ask"
+      },
+      "action": "click",
+      "args": {},
+      "expect": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "net",
+            "method": "POST",
+            "urlContains": "/api/rag/ask",
+            "status": 200
+          },
+          {
+            "kind": "text",
+            "contains": "Thursday",
+            "visible": true
+          },
+          {
+            "kind": "text",
+            "contains": "passages cited",
+            "visible": true
+          },
+          {
+            "kind": "not",
+            "predicate": {
+              "kind": "text",
+              "contains": "do not address this question",
+              "visible": true
+            }
+          },
+          {
+            "kind": "settled"
+          }
+        ]
+      },
+      "page": "/ask"
+    }
+  ],
+  "learned": [
+    {
+      "kind": "request-never-settled",
+      "step": 3,
+      "state": "open"
+    }
+  ]
+}

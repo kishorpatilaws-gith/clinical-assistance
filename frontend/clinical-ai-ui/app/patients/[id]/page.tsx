@@ -17,6 +17,11 @@ export default function PatientDetailPage() {
     setError('');
     try {
       const res = await apiFetch(`/api/patient/${id}/summary`);
+      // apiFetch renews an expired session itself; a 401 here means it could not,
+      // and it is already redirecting to /login. Say nothing rather than flash an
+      // error at a page that is on its way out.
+      if (res.status === 401) return;
+      if (res.status === 403) throw new Error('You do not have doctor access.');
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const data = await res.json();
       setSummary(data.summary);

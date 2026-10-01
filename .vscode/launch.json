@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // F5 here builds the API and starts it under the debugger on :5258.
+      // Nothing else is started: the Python processor (:8000) and the frontend
+      // (:3000) still come from run.ps1 / run.bat.
+      "name": "Debug API (:5258)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-api",
+      "program": "${workspaceFolder}/backend/ClinicalAI.Api/ClinicalAI.Api/bin/Debug/net10.0/ClinicalAI.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend/ClinicalAI.Api/ClinicalAI.Api",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5258"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\bNow listening on:\s+(https?://\S+)",
+        "uriFormat": "%s/swagger/index.html"
+      }
+    },
+    {
+      // Use this when the API is already running in its own window from
+      // run.ps1: pick ClinicalAI.Api from the process list.
+      "name": "Attach to running API",
+      "type": "coreclr",
+      "request": "attach",
+      "processName": "ClinicalAI.Api"
+    }
+  ]
+}

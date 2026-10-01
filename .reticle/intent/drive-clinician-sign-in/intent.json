@@ -1,0 +1,27 @@
+{
+  "intents": {
+    "flow:drive-clinician-sign-in": {
+      "amended": [
+        {
+          "at": 1790841916284,
+          "statement": "clinician-sign-in"
+        }
+      ],
+      "binding": {
+        "flow": "drive-clinician-sign-in"
+      },
+      "declaredAt": 1790841916284,
+      "id": "flow:drive-clinician-sign-in",
+      "state": "bound",
+      "statement": "A clinician with a doctor account signs in with email and password and lands on the patient list, loaded from the API.",
+      "status": "proposed",
+      "subject": "drive-clinician-sign-in",
+      "surface": {
+        "flow": "drive-clinician-sign-in"
+      },
+      "updatedAt": 1790842189989
+    }
+  },
+  "subject": "drive-clinician-sign-in",
+  "version": 1
+}

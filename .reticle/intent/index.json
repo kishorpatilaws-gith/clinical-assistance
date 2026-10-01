@@ -1,0 +1,41 @@
+{
+  "entries": [
+    {
+      "id": "ask-cited-answer",
+      "statement": "Asking a question about an indexed document returns an answer drawn onl…",
+      "status": "proposed",
+      "subject": "ask"
+    },
+    {
+      "id": "document-upload-background",
+      "statement": "Uploading a document returns at once (HTTP 202) with the document liste…",
+      "status": "proposed",
+      "subject": "documents"
+    },
+    {
+      "id": "flow:drive-ask-cited-answer",
+      "statement": "Asking a question about an indexed document returns an answer drawn onl…",
+      "status": "proposed",
+      "subject": "drive-ask-cited-answer"
+    },
+    {
+      "id": "flow:drive-clinician-sign-in",
+      "statement": "A clinician with a doctor account signs in with email and password and…",
+      "status": "proposed",
+      "subject": "drive-clinician-sign-in"
+    },
+    {
+      "id": "clinician-sign-in",
+      "statement": "A clinician with a doctor account signs in with email and password and…",
+      "status": "proposed",
+      "subject": "login"
+    },
+    {
+      "id": "auth-guard",
+      "statement": "A signed-out visitor who opens a clinician page such as /patients is se…",
+      "status": "proposed",
+      "subject": "patients"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,27 @@
+{
+  "intents": {
+    "flow:drive-ask-cited-answer": {
+      "amended": [
+        {
+          "at": 1790842100720,
+          "statement": "ask-cited-answer"
+        }
+      ],
+      "binding": {
+        "flow": "drive-ask-cited-answer"
+      },
+      "declaredAt": 1790842100720,
+      "id": "flow:drive-ask-cited-answer",
+      "state": "bound",
+      "statement": "Asking a question about an indexed document returns an answer drawn only from that document's passages, with numbered citations back to the passages it used.",
+      "status": "proposed",
+      "subject": "drive-ask-cited-answer",
+      "surface": {
+        "flow": "drive-ask-cited-answer"
+      },
+      "updatedAt": 1790842190017
+    }
+  },
+  "subject": "drive-ask-cited-answer",
+  "version": 1
+}

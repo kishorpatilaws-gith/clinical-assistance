@@ -309,4 +309,366 @@ the `Services/` folder is gone and the namespace outlier noted in Part 1 is reso
 
 ---
 
-## Next up: finish Part 4, then Part 5 (Custom RAG with chunking, embeddings, and Qdrant Cloud).
+---
+
+## Part 4 — Medical Document Management ✅ (2026-09-15)
+
+Architecture delivered: `Document → R2 → Python processor → Extracted text → Postgres`.
+
+### 4.0 Terraform introduced
+Terraform enters here, not at Part 1, because this is the first part that creates
+durable cloud infrastructure. Bedrock is a pure API call and Supabase was made in a
+dashboard — there was nothing to declare before now. `infra/` pins
+`cloudflare ~> 5.25` and `aws ~> 6.64`; the Cloudflare token comes from
+`CLOUDFLARE_API_TOKEN` rather than a variable, so it never reaches tfvars, state or
+plan output. Lock file committed on purpose; `.terraform/`, `*.tfstate`, `*.tfvars`
+ignored.
+
+### 4.1 Terraform — done, by import
+A working Cloudflare API token turned up (`cfut_…`), so this got finished rather than
+deferred. The bucket already existed, so Terraform adopted it:
+
+```
+terraform import cloudflare_r2_bucket.clinical_documents   <account_id>/clinical-documents/default
+terraform plan   ->  No changes. Your infrastructure matches the configuration.
+```
+
+Four things worth remembering:
+
+- The import ID takes **three** urlencoded segments — `<account_id>/<bucket>/<jurisdiction>`.
+  Two segments fails with `invalid ID`; the jurisdiction is `default`.
+- Keep the **`cfut_` prefix**. It is part of the token; stripping it returns
+  `Invalid API Token`. An earlier assumption that Cloudflare tokens are a bare 40
+  characters was simply wrong — the older `cfat_…` values in the secrets files were
+  invalid tokens, not mis-formatted ones.
+- The **S3 keys cannot do this job.** They address objects inside a bucket; managing
+  the bucket itself needs a Cloudflare API token. Different screens in the dashboard,
+  different auth systems, not interchangeable.
+- Pointing the **AWS** provider at the R2 endpoint as a workaround does not work:
+  `aws_s3_bucket` calls `GetBucketAcl` on refresh, which R2 does not implement (403).
+
+State was checked for leakage — no token, no S3 keys. `terraform.tfstate` and
+`terraform.tfvars` are gitignored; the lock file and `.tf` files are committed.
+
+### On S3 appearing in a Cloudflare project
+Worth stating plainly, because it reads like a contradiction. "S3" is two things: the
+Amazon product, and the de-facto object-storage protocol. R2 implements the protocol
+so existing tooling works unchanged. `AWSSDK.S3` here is a *protocol client* aimed at
+`r2.cloudflarestorage.com` — no bytes reach Amazon, and there is no AWS storage bill.
+Same shape as using Npgsql against Supabase. Bedrock remains the only genuine AWS
+dependency in the project.
+
+### 4.2 The actual blocker
+`AWSSDK.S3` had never been added to the csproj, which is why the `IAmazonS3`
+registration sat commented out — that code could not compile. Added, and the client
+is now wired to the R2 endpoint with `ForcePathStyle` and `AuthenticationRegion =
+"auto"`.
+
+**Non-obvious:** the v4 AWS SDK attaches checksum headers to every request by
+default and R2 does not implement them. Without
+`RequestChecksumCalculation = WHEN_REQUIRED` (and the response equivalent), uploads
+fail on a checksum/signature error.
+
+### 4.3 R2StorageService + xUnit
+Upload/download/delete against `clinical-documents`. Keys are
+`{documentType}/{date}/{guid}{ext}` — deliberately **not** keyed by user identity,
+unlike the older audio bucket, because keys surface in logs, metrics and error
+messages. The original filename travels as object metadata instead.
+
+xUnit finally enters the repo, closing the Part 1 gap: 6 tests, including a real R2
+round-trip asserting byte equality. xunit 2.x has no runtime skip, so a custom
+`RequiresR2Attribute` sets `Skip` at construction — an unconfigured machine reports
+skipped rather than silently passing.
+
+### 4.4 Python document processor
+FastAPI on :8000, `/health` and `/extract-text`, dispatching to PyMuPDF, python-docx
+or plain decode. PyMuPDF 1.28.2 and python-docx 1.2.0 both install cleanly on Python
+3.14 — no downgrade needed. Use `import pymupdf`; `import fitz` is deprecated.
+
+DOCX extraction reads **table cells as well as paragraphs** — clinical documents
+carry a lot of content in tables and paragraph-only extraction drops it silently.
+
+### 4.5 DocumentController
+`POST /api/document/upload`, `GET /api/document`, `GET /api/document/{id}`, all
+`[Authorize(Roles = "doctor")]` with an audit row each. Store to R2 first, then
+extract: if extraction fails the row is marked `Failed` and the file is still safe
+for reprocessing, rather than 500-ing a request whose upload actually succeeded.
+
+**Regression caught and fixed:** `[FromForm]` on an `IFormFile` parameter makes
+Swashbuckle's generator throw, which returns 500 for `/swagger/v1/swagger.json`
+across the *whole* API, not just that endpoint. `IFormFile` binds from form data
+without the attribute.
+
+### 4.6 Frontend
+The "Part 4 is unfinished" branch removed; rows now show type, character count and a
+status pill.
+
+**Fixed a latent CSS bug** the browser test exposed: `.btn:disabled` (specificity
+0,2,0) outranks `.btn-primary` (0,1,0) on `color`, so a disabled Upload button was
+painted `--ink-secondary` on an `--ink-secondary` background — an empty grey block
+with an invisible label.
+
+### 4.7 Verified end to end
+Driven through a real browser (Playwright + Edge), not just curl:
+login → patients → documents → upload → row appears `Completed`, zero console errors.
+Each hop confirmed independently rather than inferred from the UI:
+
+| Check | Result |
+|---|---|
+| Object in R2 | `ClinicalGuideline/2026-09-15/6153e9…pdf`, 1469 bytes |
+| Postgres row | status=2, 128 chars extracted |
+| Extracted text | returned by `GET /api/document/{id}` |
+| Audit rows | UploadDocument / ListDocuments / ViewDocument |
+| Rejected `.exe` | 400 with a readable reason |
+| Unauthenticated | 401 |
+
+### Still open after Part 4
+- `WeatherForecast` scaffold leftovers
+- HTTPS redirect still disabled from Part 3
+- Terraform for the AWS side, which arrives with Part 6
+
+---
+
+---
+
+## Part 5 — Custom RAG (in progress)
+
+### 5.0 Chunking ✅
+Boundary-aware splitting in `chunking.py`: paragraph breaks first, sentence ends as
+fallback, hard cut only when one sentence exceeds the target. A chunk that starts
+mid-sentence embeds a fragment nobody wrote and retrieves badly. Overlap is trimmed
+to a word boundary so a passage split across a boundary stays findable from either
+side. 12 tests.
+
+**A test caught a real bug.** The abbreviation guard never fired: the lookbehinds sat
+before `(?<=[.!?])`, so at the split point they inspected `"r."` rather than `"Dr"`.
+"Dr. Nair" was being treated as a sentence end. The lookbehinds must include the
+trailing dot.
+
+### 5.1 Embeddings ✅
+`all-MiniLM-L6-v2`, 384 dimensions, CPU, via sentence-transformers. 11 tests.
+
+- **CPU-only torch.** The default PyPI wheel bundles CUDA (~2.5GB), useless without an
+  NVIDIA GPU — this machine has Intel HD 4000 / AMD Radeon HD 8500M. Installing from
+  `https://download.pytorch.org/whl/cpu` gives `torch 2.14.0+cpu` at ~250MB; the venv
+  landed at 1.2GB instead of 3GB+.
+- **Vectors normalised to unit length**, so cosine similarity is a plain dot product.
+  Qdrant uses cosine distance in 5.2; unnormalised vectors rank subtly wrong.
+- **Model loads at startup**, not on first request, behind a double-checked lock —
+  uvicorn is concurrent and two threads racing the first load would fetch it twice.
+- **`/health` reports the model name.** Vectors from different models are not
+  comparable; mixing them returns confident nonsense, so the producing model has to
+  be visible.
+
+Endpoints added: `POST /embed` (queries) and `POST /process` (extract + chunk + embed
+in one call — the ingestion path, so the file bytes stay on the Python side).
+
+**Measured on this hardware** (dual-core, `torch.get_num_threads() == 2`): 5-page PDF
+→ 1337 chars → 4 chunks, extract+chunk+embed in ~900ms warm. Cold model load 26.7s
+including the 90MB download; ~8s warm at startup.
+
+**Retrieval sanity check** — four natural-language questions against the four chunks
+of a synthetic thyroid guideline, all four retrieved the correct chunk:
+
+| Query | Top chunk | Score |
+|---|---|---|
+| recheck thyroid bloods after dose change | MONITORING | 0.547 |
+| drugs stopping levothyroxine absorption | ABSORPTION | 0.602 |
+| emergency warning signs | RED FLAGS | 0.197 |
+| allergic to antibiotics | PENICILLIN ALLERGY | 0.510 |
+
+Two things to carry into Part 11's evaluation. Absolute scores are **not calibrated** —
+the emergency query ranked correctly at 0.197 while an incorrect match elsewhere
+scored 0.28, so a fixed similarity threshold would be wrong. And chunk 3 merged RED
+FLAGS with PENICILLIN ALLERGY, two unrelated topics, because chunk size was set by
+character count rather than document structure.
+
+### 5.2 Qdrant Cloud + 5.3 retrieval ✅
+Free cluster (v1.19.1, eu-central-1), collection `clinical_chunks`, 384d, cosine.
+Credentials in a gitignored `.env`; `.env.example` committed. 11 tests, skipped
+automatically when the cluster is not configured.
+
+- **Point IDs are `uuid5(ns, "{document_id}:{chunk_index}")`** — deterministic, so
+  re-indexing replaces rather than appends. Verified: re-indexing held the count at 4.
+  Without this every re-upload silently doubles a chunk's weight in retrieval.
+- **`document_id` comes from the caller** (the Postgres row id) so the vector store and
+  the relational record stay in step, and deleting a document can clear its chunks.
+- Payload carries file name, type, chunk index and offsets — enough to render a
+  citation without a second trip to Postgres.
+- Endpoints: `POST /index`, `POST /search`, `DELETE /index/{id}`; `/health` reports
+  collection stats. Qdrant being down degrades to extraction-only rather than failing
+  startup.
+
+**Retrieval is real but top-1 is not trustworthy.** For *"which drugs reduce
+levothyroxine absorption"*, the introduction chunk outranks the chunk that answers it,
+at both chunk sizes tested:
+
+```
+chunk_size=500:  0.598 [0] intro     0.557 [2] <- the answer
+chunk_size=300:  0.600 [0] intro     0.388 [2] <- the answer
+```
+
+Short, topically-central chunks act as attractors for any on-topic query. The answer
+was in the top 2 in both cases, so retrieving K>=3 and letting the model choose is
+sound — trusting rank 1 is not. Part 11 should measure **recall@k**, not accuracy@1.
+
+**A verification lesson.** An earlier check asserted the expected section name appeared
+in the top chunk's text. It passed 4/4 — but chunk 2 ends with the "RED FLAGS" heading
+and chunk 3 opens with overlap from it, so the substring matched for the wrong reason.
+Rewritten to assert on `chunk_index` against hand-verified ground truth. The result
+still held, but the method was unsound.
+
+### 5.4 RAG endpoint ✅
+Question -> retrieve top-K -> context -> Bedrock -> cited answer. 9 new xUnit tests
+(15 total on the .NET side).
+
+**Bedrock is called from .NET, not Python.** Deliberate: generating clinical text has
+to sit behind the same authorization, audit and redaction as everything else, and
+Bedrock was already wired up on that side since Part 1. Doing it in Python would have
+needed a second credential path and repeated the unauthenticated `BedrockController`
+mistake from Part 4. Python stays a focused extraction and retrieval service.
+
+**Upload now indexes.** `DocumentProcessorClient` calls `/index` instead of
+`/extract-text`, passing the Postgres row id through as the vector store's
+`document_id` so the two stay in step. `/index` returns the extracted text as well,
+so one round trip does extraction, chunking, embedding, storage and persistence.
+
+Added `POST /api/document/reindex` (backfill for documents predating the pipeline)
+and `DELETE /api/document/{id}` (clears vectors *before* the R2 object - a stale index
+citing deleted text is worse than an orphaned object).
+
+**The prompt contract** is where trustworthiness is decided, so it is unit-tested
+independently of whether the model behaves on a given day. Three rules, each guarding
+a failure: answer only from the passages; say so explicitly when they do not answer;
+considerations not diagnosis. Citations are numbered markers mapped back to file name
+and character offsets.
+
+**Backfill result** — 4 documents, 16 chunks:
+
+| Document | Chunks |
+|---|---|
+| guideline.pdf | 1 |
+| lab-report.docx | 1 |
+| notes.txt | 1 |
+| Disease and Medicine.docx | 13 |
+
+**Live results.** A grounded answer, correctly cited:
+
+> *"What is the difference between osteoarthritis and rheumatoid arthritis?"*
+> "Osteoarthritis is a wear-and-tear condition with morning stiffness typically
+> lasting under 30 minutes... Rheumatoid arthritis is an autoimmune condition with
+> prolonged morning stiffness lasting over 1 hour, frequently affecting symmetrical
+> joints bilaterally [1]." — cited to chunk 12, which is where that text lives.
+
+And the refusal gate, which is the more important result:
+
+> *"What is the recommended first-line treatment for malaria?"* -> refused
+> *"What antibiotic dose should I prescribe for this patient?"* -> refused
+
+Both refused **while retrieval returned passages** (top scores 0.348 and 0.428). The
+refusal is the prompt contract working, not an artifact of an empty result set — worth
+distinguishing, because an empty-result refusal proves nothing.
+
+**An orphan caught by accident.** Testing `/index` directly with a made-up document id
+left 4 vectors with no Postgres row, and they surfaced in a later answer's sources.
+Removed via `delete_document`. The index and the relational store can drift, and only
+the delete path keeps them together — which is why `DELETE /api/document/{id}` clears
+vectors first.
+
+### 5.5 Ask UI ✅
+`/ask` — question, answer, verifiable citations. 16 browser assertions, no console errors.
+
+**Citation markers are the mechanism, not decoration.** The answer's `[1]` markers are
+parsed out and rendered as buttons; clicking one expands that passage in place with
+file name, chunk index, character offsets and score. Evidence sits against the claim
+it supports rather than in a list below that the eye skips — which is what makes an
+answer checkable rather than merely readable.
+
+The parser handles `[1]`, `[1][2]` and `[1, 2]`, and falls back to plain text rather
+than mangling an answer it cannot parse.
+
+**A refusal is styled as a correct outcome, not an error** — neutral grey rule, not the
+danger colour, with a note explaining that passages were retrieved but none answered.
+Given how thin the corpus is, refusals are common and the UI has to make that read as
+a working system.
+
+Retrieved passages sit behind a collapsed disclosure ("5 passages retrieved — show what
+the model was given"). Since retrieval measurably does not always rank the answering
+passage first, seeing the full context is diagnostic when an answer looks thin — but it
+must not compete with the answer for attention.
+
+Optional per-document scoping uses the `documentId` filter. Verified: scoping to
+`notes.txt` refuses an arthritis question the unscoped search answers.
+
+**Two bugs the tests and screenshot caught:**
+
+- The page rendered **"0 indexed"** before the document list arrived — stating something
+  untrue during the fetch. Now distinguishes "none" from "not yet known", and the scope
+  dropdown stays disabled until loaded.
+- The footer read **"5 passages cited"** when the answer cited only `[1]`. `sources` is
+  every *retrieved* passage numbered for the model to choose from, not the subset it
+  used. Counting it as "cited" overstates how well grounded the answer is — now "1 of 5
+  passages cited", counting distinct markers actually present in the text.
+
+### 5.6 Evaluation harness ✅
+`document-processor/eval/` — 15 answerable questions with hand-verified ground truth
+plus 6 deliberately unanswerable. Two runners: retrieval (free, hits `/search`) and
+end-to-end (one Bedrock call per question, hits the real .NET endpoint so it measures
+the system a clinician uses, not a reimplementation).
+
+Questions were **hand-written from the chunk text before anything was run through
+retrieval**. LLM-generated questions reuse a chunk's own vocabulary and flatter the
+retriever.
+
+**Retrieval**
+
+| recall@1 | recall@3 | recall@5 | recall@10 | MRR | median |
+|---|---|---|---|---|---|
+| **0.467** | 0.867 | **0.933** | 1.000 | 0.660 | 469 ms |
+
+The recall@1→@5 gap is the headline: the answering passage is first less than half the
+time, but in the top five 93% of the time. That is the measured justification for
+K=5 — retrieving one passage would be wrong more often than right. The hunch from 5.3
+now has a number behind it.
+
+**End to end**
+
+| false answer | false refusal | citations valid | cited correct | median | p90 |
+|---|---|---|---|---|---|
+| **0.000** | 0.067 | 1.000 | 0.800 | 1441 ms | 4109 ms |
+
+**Zero hallucinations** across all six unanswerable questions, and every citation
+marker resolved to a supplied passage. Those are the two numbers that matter for
+clinical use.
+
+**The single false refusal is the most interesting result.** `a14` — *"Does paracetamol
+bring down swelling as well as pain?"* — was refused despite retrieval supplying
+*"Acetaminophen: Tylenol for targeted pain management (does not reduce inflammation)"*
+at rank 3. The question says **paracetamol**, the document says **acetaminophen**. Same
+drug, different name; the model would not bridge the synonym because it was told to use
+only the passages.
+
+That is the cost of strict grounding, made visible: a clinician was denied information
+sitting in their own library. Options later are query expansion over drug synonyms, or
+a softer instruction accepting some hallucination risk. Worth noting which way the
+current setting errs — toward refusing rather than inventing, which is the right
+direction here.
+
+**Caveat recorded in the report itself:** 16 chunks across 4 documents is small enough
+that random guessing scores recall@5 ≈ 0.31. The harness is the deliverable; Part 11
+re-runs it on a larger corpus.
+
+**Not measured:** answer faithfulness — whether a cited passage *justifies* the claim,
+as opposed to merely *resolving*. That needs an LLM judge and belongs to Part 11.
+
+---
+
+## Part 5 complete
+
+Documents → chunking → embeddings → Qdrant → similarity search → top-K context →
+Bedrock → cited answer, with a UI and measured baselines. Part 6 replaces the custom
+pipeline with Bedrock Knowledge Bases and now has real numbers to compare against.
+
+---
+
+## Next up: Part 6 — AWS-native RAG with Bedrock Knowledge Bases, compared against the 5.6 baseline.

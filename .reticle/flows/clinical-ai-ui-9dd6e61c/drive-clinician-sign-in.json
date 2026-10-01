@@ -1,0 +1,83 @@
+{
+  "version": 2,
+  "name": "drive-clinician-sign-in",
+  "projectId": "clinical-ai-ui-9dd6e61c",
+  "createdAt": 1790841916263,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "textbox",
+        "name": "Email"
+      },
+      "args": {
+        "value": "doctor@test.com"
+      },
+      "action": "fill",
+      "page": "/login"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "textbox",
+        "name": "Password"
+      },
+      "args": {
+        "value": "<redacted: supply at replay>"
+      },
+      "action": "fill",
+      "page": "/login"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Sign in"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "route",
+            "pathname": "/patients"
+          },
+          {
+            "kind": "net",
+            "method": "GET",
+            "urlContains": "/api/patient",
+            "ok": true
+          },
+          {
+            "kind": "settled"
+          }
+        ]
+      },
+      "page": "/login",
+      "endPage": "/patients"
+    }
+  ],
+  "startPath": "/login",
+  "intent": "clinician-sign-in",
+  "requires": [
+    {
+      "kind": "route",
+      "pathname": "/login"
+    }
+  ],
+  "ensures": [
+    {
+      "kind": "route",
+      "pathname": "/patients"
+    }
+  ],
+  "author": {
+    "agent": "claude-code-stdio",
+    "person": "kishor.patil.aws@gmail.com"
+  },
+  "intentId": "flow:drive-clinician-sign-in"
+}

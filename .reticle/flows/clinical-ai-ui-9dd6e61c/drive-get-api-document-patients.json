@@ -1,0 +1,105 @@
+{
+  "version": 2,
+  "name": "drive-get-api-document-patients",
+  "projectId": "clinical-ai-ui-9dd6e61c",
+  "createdAt": 1790841916601,
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "link",
+        "name": "Manage documents"
+      },
+      "args": {},
+      "action": "click",
+      "expect": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "route",
+            "pathname": "/documents"
+          },
+          {
+            "kind": "net",
+            "method": "GET",
+            "urlContains": "/api/document",
+            "ok": true
+          },
+          {
+            "kind": "settled"
+          }
+        ]
+      },
+      "page": "/patients",
+      "endPage": "/documents"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Upload"
+      },
+      "args": {},
+      "action": "click",
+      "page": "/documents"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Upload"
+      },
+      "args": {},
+      "action": "click",
+      "page": "/documents"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "component",
+        "component": "DocumentsPage",
+        "source": {
+          "file": "app/documents/page.tsx",
+          "line": 101,
+          "column": 8
+        }
+      },
+      "args": {
+        "path": "artifacts/reticle-verification-note.txt"
+      },
+      "action": "upload",
+      "page": "/documents"
+    },
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "role",
+        "role": "button",
+        "name": "Upload"
+      },
+      "args": {},
+      "action": "click",
+      "page": "/documents"
+    }
+  ],
+  "startPath": "/patients",
+  "requires": [
+    {
+      "kind": "route",
+      "pathname": "/patients"
+    }
+  ],
+  "ensures": [
+    {
+      "kind": "route",
+      "pathname": "/documents"
+    }
+  ],
+  "author": {
+    "agent": "claude-code-stdio",
+    "person": "kishor.patil.aws@gmail.com"
+  }
+}

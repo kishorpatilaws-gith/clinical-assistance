@@ -1,0 +1,22 @@
+{
+  "intents": {
+    "auth-guard": {
+      "declaredAt": 1790841677456,
+      "id": "auth-guard",
+      "state": "declared",
+      "statement": "A signed-out visitor who opens a clinician page such as /patients is sent to the clinician sign-in page and never sees patient data.",
+      "status": "proposed",
+      "subject": "patients",
+      "surface": {
+        "files": [
+          "frontend/clinical-ai-ui/app/patients/page.tsx",
+          "frontend/clinical-ai-ui/lib/auth.ts"
+        ],
+        "route": "/patients"
+      },
+      "updatedAt": 1790841677466
+    }
+  },
+  "subject": "patients",
+  "version": 1
+}

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "reticle": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "--prefer-offline",
+        "@reticlehq/server",
+        "mcp"
+      ],
+      "env": {
+        "RETICLE_ADVERTISE_ALL_TOOLS": "1"
+      }
+    }
+  }
+}
